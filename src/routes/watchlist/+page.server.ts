@@ -1,6 +1,6 @@
 import { error } from "@sveltejs/kit";
 import type { ServerLoad } from "@sveltejs/kit";
-import { WatchlistService } from "$lib/services/watchlist";
+import { watchlistService } from "$lib/server/services/watchlist";
 import { TMDBService } from "$lib/services/tmdb";
 
 export const load: ServerLoad = async ({ locals }) => {
@@ -8,7 +8,6 @@ export const load: ServerLoad = async ({ locals }) => {
     throw error(401, "Unauthorized");
   }
 
-  const watchlistService = new WatchlistService();
   const tmdbService = new TMDBService();
 
   try {

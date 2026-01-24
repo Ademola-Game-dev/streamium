@@ -20,7 +20,7 @@
         throw new Error('Failed to delete comment');
       }
 
-      commentsStore.removeComment(comment.id);
+      commentsStore.deleteComment(comment.id);
     } catch (error) {
       console.error('Error deleting comment:', error);
     }
@@ -39,7 +39,7 @@
         throw new Error('Failed to flag comment');
       }
 
-      commentsStore.updateComment(comment.id, { ...comment, flagged: true });
+      commentsStore.updateComment(comment.id, comment.content);
     } catch (error) {
       console.error('Error flagging comment:', error);
     }
@@ -58,7 +58,7 @@
         throw new Error('Failed to unflag comment');
       }
 
-      commentsStore.updateComment(comment.id, { ...comment, flagged: false });
+      commentsStore.updateComment(comment.id, comment.content);
     } catch (error) {
       console.error('Error unflagging comment:', error);
     }

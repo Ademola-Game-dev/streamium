@@ -5,6 +5,19 @@
   import VideoPlayer from '$lib/components/VideoPlayer.svelte';
   import type { TMDBMediaResponse } from '$lib/types/tmdb';
 
+  interface Season {
+    season_number: number;
+    name: string;
+    episode_count: number;
+  }
+
+  interface Episode {
+    episode_number: number;
+    name: string;
+    overview: string;
+    air_date: string;
+  }
+
   let shows: TMDBMediaResponse[] = [];
   let loading = true;
   let error: string | null = null;
@@ -16,8 +29,8 @@
   let selectedShow: TMDBMediaResponse | null = null;
   let selectedSeason: number | undefined;
   let selectedEpisode: number | undefined;
-  let seasons = [];
-  let episodes = [];
+  let seasons: Season[] = [];
+  let episodes: Episode[] = [];
   let showEpisodeModal = false;
 
   async function fetchShows(currentPage = 1, reset = false) {
@@ -60,7 +73,7 @@
       const response = await fetch(`/api/tv/${showId}/seasons`);
       if (response.ok) {
         const data = await response.json();
-        seasons = data.seasons.filter(s => s.season_number > 0);
+        seasons = data.seasons.filter((s: Season) => s.season_number > 0);
         if (seasons.length > 0) {
           await selectSeason(seasons[0].season_number);
         }
@@ -154,8 +167,8 @@
         <VideoPlayer
           mediaId={selectedShow.id}
           mediaType="tv"
-          title={selectedShow.name}
-          {selectedSeason}
+          title={selectedShow.name || 'Unknown Show'}
+          season={selectedSeason}
           episode={selectedEpisode}
         />
       </div>

@@ -2,9 +2,6 @@
   import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { Editor } from '@tiptap/core';
   import StarterKit from '@tiptap/starter-kit';
-  import Bold from '@tiptap/extension-bold';
-  import Italic from '@tiptap/extension-italic';
-  import Strike from '@tiptap/extension-strike';
   import EmojiPicker from './EmojiPicker.svelte';
 
   const dispatch = createEventDispatcher<{ input: string }>();
@@ -21,14 +18,7 @@
     editor = new Editor({
       element,
       extensions: [
-        Bold.configure({}),
-        Italic.configure({}),
-        Strike.configure({}),
         StarterKit.configure({
-
-          bold: false,
-          italic: false,
-          strike: false,
           heading: false,
           bulletList: false,
           orderedList: false,

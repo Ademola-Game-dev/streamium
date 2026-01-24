@@ -35,7 +35,7 @@ export interface AuthServiceInterface {
 
 
 export async function verifyToken(token: string): Promise<TokenPayload> {
-  const authService = (await import("$lib/services/auth")).authService;
+  const { authService } = await import("$lib/server/services/auth");
   return authService.verifyToken(token);
 }
 

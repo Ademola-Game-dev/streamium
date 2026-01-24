@@ -108,7 +108,7 @@
         <VideoPlayer
           mediaId={selectedMovie.id}
           mediaType="movie"
-          title={selectedMovie.title}
+          title={selectedMovie.title || 'Unknown Movie'}
         />
       </div>
     </div>

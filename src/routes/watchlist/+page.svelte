@@ -37,7 +37,7 @@
       {#each items as item (item.id)}
         <MediaCard
           id={item.mediaId}
-          type={item.mediaType}
+          type={item.mediaType === 'movie' ? 'movie' : 'tv'}
           title={item.title}
           posterPath={item.posterPath}
           voteAverage={item.voteAverage}

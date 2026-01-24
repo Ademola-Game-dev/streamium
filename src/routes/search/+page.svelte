@@ -48,8 +48,8 @@
         {#each results as item (item.id)}
           <MediaCard
             id={item.id}
-            type={item.media_type}
-            title={item.media_type === 'movie' ? item.title : item.name}
+            type={item.media_type === 'movie' ? 'movie' : 'tv'}
+            title={item.media_type === 'movie' ? (item.title || '') : (item.name || '')}
             posterPath={item.poster_path}
             voteAverage={item.vote_average}
           />

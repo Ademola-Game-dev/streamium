@@ -1,12 +1,24 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
+  interface Season {
+    season_number: number;
+    name: string;
+    episode_count: number;
+  }
+
+  interface Episode {
+    episode_number: number;
+    name: string;
+    overview: string;
+  }
+
   export let mediaId: number;
   export let showModal = false;
 
   const dispatch = createEventDispatcher();
-  let seasons = [];
-  let episodes = [];
+  let seasons: Season[] = [];
+  let episodes: Episode[] = [];
   let selectedSeason: number | undefined;
   let selectedEpisode: number | undefined;
 
@@ -19,7 +31,7 @@
       const response = await fetch(`/api/tv/${mediaId}/seasons`);
       if (response.ok) {
         const data = await response.json();
-        seasons = data.seasons.filter(s => s.season_number > 0);
+        seasons = data.seasons.filter((s: Season) => s.season_number > 0);
         if (seasons.length > 0) {
           await selectSeason(seasons[0].season_number);
         }
