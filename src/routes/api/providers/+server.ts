@@ -23,7 +23,5 @@ export async function GET() {
     vidlink: validateProviderUrl(env.VIDLINK_BASE_URL),
     movies111: validateProviderUrl(env.MOVIES111_BASE_URL),
     embed2: validateProviderUrl(env.EMBED2_BASE_URL),
-    moviesapi: validateProviderUrl(env.MOVIESAPI_BASE_URL),
-    multiembed: validateProviderUrl(env.MULTIEMBED_BASE_URL),
   });
 }

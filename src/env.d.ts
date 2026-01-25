@@ -15,8 +15,6 @@ interface ImportMetaEnv {
   readonly VIDLINK_BASE_URL: string;
   readonly MOVIES111_BASE_URL: string;
   readonly EMBED2_BASE_URL: string;
-  readonly MOVIESAPI_BASE_URL: string;
-  readonly MULTIEMBED_BASE_URL: string;
 }
 
 interface ImportMeta {
@@ -37,8 +35,6 @@ declare module "$env/static/private" {
   export const VIDLINK_BASE_URL: string;
   export const MOVIES111_BASE_URL: string;
   export const EMBED2_BASE_URL: string;
-  export const MOVIESAPI_BASE_URL: string;
-  export const MULTIEMBED_BASE_URL: string;
 }
 
 declare module "$env/static/public" {

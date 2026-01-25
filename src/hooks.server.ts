@@ -56,9 +56,7 @@ function setSecurityHeaders(response: Response): void {
     "https://vidplay.online/ https://*.vidplay.online/ " +
     "https://vidlink.pro/ https://*.vidlink.pro/ " +
     "https://111movies.com/ https://*.111movies.com/ " +
-    "https://2embed.cc/ https://*.2embed.cc/ " +
-    "https://moviesapi.club/ https://*.moviesapi.club/ " +
-    "https://multiembed.mov/ https://*.multiembed.mov/;"
+    "https://2embed.cc/ https://*.2embed.cc/;"
   );
 }
 

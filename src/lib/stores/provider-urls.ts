@@ -5,8 +5,6 @@ interface ProviderUrls {
   vidlink: string;
   movies111: string;
   embed2: string;
-  moviesapi: string;
-  multiembed: string;
 }
 
 export const providerUrls = writable<ProviderUrls | null>(null);

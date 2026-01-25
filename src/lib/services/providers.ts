@@ -82,40 +82,6 @@ export const providers: Provider[] = [
       }
     },
   },
-  {
-    id: "moviesapi",
-    name: "MoviesAPI",
-    getEmbedUrl: (mediaId, type, season, episode) => {
-      const urls = get(providerUrls);
-      if (!urls?.moviesapi) return "";
-
-      if (type === "movie") {
-        return `${urls.moviesapi}/movie/${mediaId}`;
-      } else {
-        if (typeof season !== "undefined" && typeof episode !== "undefined") {
-          return `${urls.moviesapi}/tv/${mediaId}/${season}/${episode}`;
-        }
-        return `${urls.moviesapi}/tv/${mediaId}/1/1`;
-      }
-    },
-  },
-  {
-    id: "multiembed",
-    name: "MultiEmbed",
-    getEmbedUrl: (mediaId, type, season, episode) => {
-      const urls = get(providerUrls);
-      if (!urls?.multiembed) return "";
-
-      if (type === "movie") {
-        return `${urls.multiembed}/?video_id=${mediaId}&tmdb=1`;
-      } else {
-        if (typeof season !== "undefined" && typeof episode !== "undefined") {
-          return `${urls.multiembed}/?video_id=${mediaId}&tmdb=1&s=${season}&e=${episode}`;
-        }
-        return `${urls.multiembed}/?video_id=${mediaId}&tmdb=1&s=1&e=1`;
-      }
-    },
-  },
 ];
 
 export function getProvider(id: string): Provider | undefined {
