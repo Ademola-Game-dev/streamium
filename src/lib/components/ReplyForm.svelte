@@ -2,6 +2,7 @@
   import RichTextEditor from './RichTextEditor.svelte';
   import { validateComment } from '$lib/shared/comment-validation';
   import { authStore } from '$lib/stores/auth';
+  import { csrfFetch } from '$lib/utils/csrf';
 
   interface User {
     id: number;
@@ -65,7 +66,7 @@
         return;
       }
 
-      const response = await fetch('/api/comments', {
+      const response = await csrfFetch('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

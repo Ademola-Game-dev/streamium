@@ -1,3 +1,5 @@
+import { csrfFetch } from "$lib/utils/csrf";
+
 type MediaType = "movie" | "tv";
 
 interface CommentUser {
@@ -36,7 +38,7 @@ export class CommentService {
     content: string,
     parentId?: number | null,
   ): Promise<BaseComment> {
-    const response = await fetch('/api/comments', {
+    const response = await csrfFetch('/api/comments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -125,7 +127,7 @@ export class CommentService {
   }
 
   async likeComment(commentId: number): Promise<void> {
-    const response = await fetch('/api/comments/like', {
+    const response = await csrfFetch('/api/comments/like', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -143,7 +145,7 @@ export class CommentService {
     commentId: number,
     content: string,
   ): Promise<BaseComment> {
-    const response = await fetch(`/api/comments/${commentId}`, {
+    const response = await csrfFetch(`/api/comments/${commentId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -160,7 +162,7 @@ export class CommentService {
   }
 
   async deleteComment(commentId: number): Promise<void> {
-    const response = await fetch(`/api/comments/${commentId}`, {
+    const response = await csrfFetch(`/api/comments/${commentId}`, {
       method: 'DELETE',
     });
 
@@ -171,7 +173,7 @@ export class CommentService {
   }
 
   async flagComment(commentId: number, reason?: string): Promise<void> {
-    const response = await fetch(`/api/comments/${commentId}/flag`, {
+    const response = await csrfFetch(`/api/comments/${commentId}/flag`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -186,8 +188,11 @@ export class CommentService {
   }
 
   async unflagComment(commentId: number): Promise<void> {
-    const response = await fetch(`/api/comments/${commentId}/unflag`, {
+    const response = await csrfFetch(`/api/comments/${commentId}/unflag`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
     if (!response.ok) {

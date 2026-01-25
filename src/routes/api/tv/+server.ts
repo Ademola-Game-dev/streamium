@@ -1,6 +1,7 @@
 import { json } from "@sveltejs/kit";
 import type { RequestEvent } from "@sveltejs/kit";
 import { TMDB_API_KEY, TMDB_API_URL } from "$env/static/private";
+import type { TMDBResponse, TMDBTVShow } from "$lib/types/tmdb";
 
 export async function GET({ fetch, url }: RequestEvent) {
   if (!TMDB_API_KEY || !TMDB_API_URL) {
@@ -70,8 +71,8 @@ export async function GET({ fetch, url }: RequestEvent) {
       }, { status: 200 });
     }
 
-    const data = await response.json();
-    data.results = data.results.filter((show: any) => show.vote_average > 0);
+    const data = await response.json() as TMDBResponse<TMDBTVShow>;
+    data.results = data.results.filter((show) => show.vote_average > 0);
 
     return json(data);
   } catch (err) {

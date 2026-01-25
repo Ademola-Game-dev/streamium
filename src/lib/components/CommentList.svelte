@@ -6,6 +6,7 @@
   import DOMPurify from 'isomorphic-dompurify';
   import ReplyForm from './ReplyForm.svelte';
   import CommentForm from './CommentForm.svelte';
+  import { csrfFetch } from '$lib/utils/csrf';
 
   export let mediaId: number;
   export let mediaType: 'movie' | 'tv';
@@ -119,7 +120,7 @@
     comments = [...comments];
 
     try {
-      const response = await fetch('/api/comments/like', {
+      const response = await csrfFetch('/api/comments/like', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ commentId })
@@ -157,7 +158,7 @@
     comments = [...comments];
 
     try {
-      const response = await fetch(`/api/comments/${commentId}/flag`, {
+      const response = await csrfFetch(`/api/comments/${commentId}/flag`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

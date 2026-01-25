@@ -3,6 +3,7 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import type { CommentWithDetails } from '$lib/services/comments';
+  import { csrfFetch } from '$lib/utils/csrf';
 
   let comments: CommentWithDetails[] = [];
   let loading = true;
@@ -34,7 +35,7 @@
     if (!confirm('Are you sure you want to delete this comment?')) return;
 
     try {
-      const response = await fetch(`/api/comments/${commentId}`, {
+      const response = await csrfFetch(`/api/comments/${commentId}`, {
         method: 'DELETE'
       });
 
@@ -49,8 +50,11 @@
 
   async function unflagComment(commentId: number) {
     try {
-      const response = await fetch(`/api/comments/${commentId}/unflag`, {
-        method: 'POST'
+      const response = await csrfFetch(`/api/comments/${commentId}/unflag`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
       if (!response.ok) throw new Error('Failed to unflag comment');

@@ -3,6 +3,7 @@
   import RichTextEditor from './RichTextEditor.svelte';
   import { authStore } from '$lib/stores/auth';
   import { validateComment } from '$lib/shared/comment-validation';
+  import { csrfFetch } from '$lib/utils/csrf';
 
   export let mediaId: number;
   export let mediaType: 'movie' | 'tv';
@@ -62,7 +63,7 @@
         return;
       }
 
-      const response = await fetch('/api/comments', {
+      const response = await csrfFetch('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

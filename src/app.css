@@ -11,6 +11,10 @@
     @apply bg-gray-900 text-white;
   }
 
+  .sveltekit-body {
+    display: contents;
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     @apply w-2;

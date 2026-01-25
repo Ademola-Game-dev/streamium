@@ -1,5 +1,6 @@
 import { writable } from "svelte/store";
 import type { Comment } from "$lib/types/comments";
+import { csrfFetch } from "$lib/utils/csrf";
 
 interface CommentStore {
   comments: Comment[];
@@ -63,7 +64,7 @@ function createCommentsStore() {
       parentId?: number;
     }) {
       try {
-        const response = await fetch("/api/comments", {
+        const response = await csrfFetch("/api/comments", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -89,7 +90,7 @@ function createCommentsStore() {
 
     async toggleLike(commentId: number) {
       try {
-        const response = await fetch(`/api/comments/like`, {
+        const response = await csrfFetch(`/api/comments/like`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ commentId }),
@@ -119,7 +120,7 @@ function createCommentsStore() {
 
     async updateComment(commentId: number, content: string) {
       try {
-        const response = await fetch(`/api/comments/${commentId}`, {
+        const response = await csrfFetch(`/api/comments/${commentId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ content }),
@@ -140,7 +141,7 @@ function createCommentsStore() {
 
     async deleteComment(commentId: number) {
       try {
-        const response = await fetch(`/api/comments/${commentId}`, {
+        const response = await csrfFetch(`/api/comments/${commentId}`, {
           method: "DELETE",
         });
         if (!response.ok) throw new Error("Failed to delete comment");

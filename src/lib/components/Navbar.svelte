@@ -2,6 +2,7 @@
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
   import { authStore } from '$lib/stores/auth';
+  import { csrfFetch } from '$lib/utils/csrf';
 
   let isScrolled = false;
   let isMobileMenuOpen = false;
@@ -25,7 +26,7 @@
 
   async function handleLogout() {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await csrfFetch('/api/auth/logout', { method: 'POST' });
       window.location.href = '/';
     } catch (error) {
       console.error('Logout failed:', error);

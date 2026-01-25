@@ -1,10 +1,11 @@
 import { json } from "@sveltejs/kit";
 import type { RequestEvent } from "@sveltejs/kit";
 import { authService } from "$lib/server/services/auth";
-import { createSessionCookie } from "$lib/server/auth";
+import { createSessionCookie, createCsrfCookie, createCsrfToken } from "$lib/server/auth";
 import { RateLimitService } from "$lib/server/services/rate-limit";
 import { handleDatabaseError } from "$lib/server/services/db-error";
 import { dev } from "$app/environment";
+import { CaptchaService } from "$lib/server/services/captcha";
 
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
@@ -21,7 +22,7 @@ export async function POST({ request, getClientAddress }: RequestEvent) {
   }
 
   try {
-    const { username, email, password } = await request.json();
+    const { username, email, password, captchaId, captchaAnswer } = await request.json();
 
     if (!username || !password) {
       return json({ error: "Username and password are required" }, { status: 400 });
@@ -47,6 +48,15 @@ export async function POST({ request, getClientAddress }: RequestEvent) {
       return json({ error: "Invalid email format" }, { status: 400 });
     }
 
+    if (!captchaId || !captchaAnswer) {
+      return json({ error: "Captcha verification is required" }, { status: 400 });
+    }
+
+    const captchaValid = CaptchaService.validateCaptcha(captchaId, captchaAnswer, { consume: true });
+    if (!captchaValid) {
+      return json({ error: "Invalid captcha. Please try again." }, { status: 400 });
+    }
+
     const existingUser = await authService.findUserByIdentifier(email || username);
     if (existingUser) {
       if (email && existingUser.email === email) {
@@ -60,11 +70,13 @@ export async function POST({ request, getClientAddress }: RequestEvent) {
     const user = await authService.createUser(username, email, password);
     const token = await authService.generateToken(user);
     const isProduction = !dev;
+    const csrfToken = createCsrfToken();
+    const headers = new Headers();
+    headers.append("Set-Cookie", createSessionCookie(token, isProduction));
+    headers.append("Set-Cookie", createCsrfCookie(csrfToken, isProduction));
 
     return json(user, {
-      headers: {
-        "Set-Cookie": createSessionCookie(token, isProduction),
-      },
+      headers,
     });
   } catch (error) {
     return handleDatabaseError(error, "register");

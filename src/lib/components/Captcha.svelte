@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
+  import { csrfFetch } from '$lib/utils/csrf';
 
   export let required = true;
 
@@ -180,7 +181,7 @@
     // Dispatch with data for server-side validation during form submission
     // We also do a preliminary server check here
     try {
-      const response = await fetch('/api/captcha', {
+      const response = await csrfFetch('/api/captcha', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: captchaId, answer: userInput }),

@@ -7,15 +7,18 @@ RUN apt-get update && apt-get install -y \
     default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
 
-COPY package*.json ./
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma/
 
-RUN npm ci --only=production
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN npx prisma generate
-RUN npm run build
+RUN pnpm prisma generate
+RUN pnpm run build
+RUN pnpm prune --prod
 
 EXPOSE 5173
 

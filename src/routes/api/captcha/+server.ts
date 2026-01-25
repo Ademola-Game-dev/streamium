@@ -29,7 +29,7 @@ export async function POST({ request }: RequestEvent) {
     }
 
     const { id, answer } = validation.data;
-    const isValid = CaptchaService.validateCaptcha(id, answer);
+    const isValid = CaptchaService.validateCaptcha(id, answer, { consume: false });
 
     return json({ valid: isValid });
   } catch {

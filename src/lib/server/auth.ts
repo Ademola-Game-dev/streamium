@@ -1,10 +1,11 @@
-import { prisma } from "./prisma";
 import type { User } from "@prisma/client";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
 import type { Cookies } from "@sveltejs/kit";
 import { JWT_SECRET } from "$env/static/private";
+import crypto from "node:crypto";
+import { CSRF_COOKIE_NAME } from "$lib/constants/security";
 const COOKIE_NAME = "session";
+const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 
 interface Session {
   userId: number;
@@ -13,7 +14,7 @@ interface Session {
 
 export async function createSession(user: User): Promise<string> {
   const token = jwt.sign(
-    { userId: user.id, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 },
+    { userId: user.id, exp: Math.floor(Date.now() / 1000) + SESSION_MAX_AGE },
     JWT_SECRET,
   );
   return token;
@@ -31,22 +32,24 @@ export async function getSession(cookies: Cookies): Promise<Session | null> {
   }
 }
 
-export async function validatePassword(
-  password: string,
-  hash: string,
-): Promise<boolean> {
-  return bcrypt.compare(password, hash);
-}
-
-export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 10);
-}
-
 export function createSessionCookie(token: string, secure: boolean = true): string {
   const secureFlag = secure ? " Secure;" : "";
-  return `${COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Strict;${secureFlag} Max-Age=${60 * 60 * 24 * 7}`;
+  return `${COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Strict;${secureFlag} Max-Age=${SESSION_MAX_AGE}`;
 }
 
 export function clearSessionCookie(): string {
   return `${COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`;
+}
+
+export function createCsrfToken(): string {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+export function createCsrfCookie(token: string, secure: boolean = true): string {
+  const secureFlag = secure ? " Secure;" : "";
+  return `${CSRF_COOKIE_NAME}=${token}; Path=/; SameSite=Strict;${secureFlag} Max-Age=${SESSION_MAX_AGE}`;
+}
+
+export function clearCsrfCookie(): string {
+  return `${CSRF_COOKIE_NAME}=; Path=/; SameSite=Strict; Max-Age=0`;
 }

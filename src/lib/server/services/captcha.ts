@@ -38,7 +38,11 @@ export class CaptchaService {
     return { id, text };
   }
 
-  static validateCaptcha(id: string, userInput: string): boolean {
+  static validateCaptcha(
+    id: string,
+    userInput: string,
+    options: { consume?: boolean } = {},
+  ): boolean {
     const entry = captchaStore.get(id);
 
     if (!entry) {
@@ -51,11 +55,13 @@ export class CaptchaService {
       return false;
     }
 
-    // Delete after use (one-time use)
-    captchaStore.delete(id);
+    const matches = entry.text.toLowerCase() === userInput.toLowerCase();
+    const consume = options.consume ?? true;
+    if (consume || !matches) {
+      captchaStore.delete(id);
+    }
 
-    // Case-insensitive comparison
-    return entry.text.toLowerCase() === userInput.toLowerCase();
+    return matches;
   }
 
   static invalidateCaptcha(id: string): void {

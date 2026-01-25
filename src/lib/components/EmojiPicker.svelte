@@ -10,7 +10,9 @@
   let showPicker = false;
   let pickerElement: HTMLDivElement;
   let buttonElement: HTMLButtonElement;
-  let picker: any = null;
+  type EmojiData = { native: string };
+  type EmojiMartPicker = { destroy?: () => void };
+  let picker: EmojiMartPicker | null = null;
 
   emojiMart.init({ data });
 
@@ -30,7 +32,7 @@
     }
   }
 
-  function handleSelect(emoji: any) {
+  function handleSelect(emoji: EmojiData) {
     dispatch('select', emoji.native);
     showPicker = false;
   }

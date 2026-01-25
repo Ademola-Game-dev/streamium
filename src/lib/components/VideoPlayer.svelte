@@ -76,7 +76,7 @@
   }
 </script>
 
-<div class="relative w-full bg-black rounded-lg overflow-hidden" style="padding-top: 56.25%;">
+<div class="video-player-frame relative w-full bg-black rounded-lg overflow-hidden">
   {#if loading}
     <div class="absolute inset-0 flex items-center justify-center bg-gray-900 z-20">
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
@@ -115,3 +115,9 @@
     </div>
   {/if}
 </div>
+
+<style>
+  .video-player-frame {
+    padding-top: 56.25%;
+  }
+</style>

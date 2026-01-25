@@ -1,3 +1,5 @@
+import { csrfFetch } from "$lib/utils/csrf";
+
 interface WatchlistItem {
   id: number;
   userId: number;
@@ -17,7 +19,7 @@ export class WatchlistService {
     posterPath: string | null,
     voteAverage: number,
   ): Promise<WatchlistItem> {
-    const response = await fetch('/api/watchlist', {
+    const response = await csrfFetch('/api/watchlist', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -43,7 +45,7 @@ export class WatchlistService {
     mediaId: number,
     mediaType: "movie" | "tv",
   ): Promise<void> {
-    const response = await fetch('/api/watchlist', {
+    const response = await csrfFetch('/api/watchlist', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

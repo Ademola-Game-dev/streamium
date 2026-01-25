@@ -1,9 +1,32 @@
 import { writable, derived, get } from "svelte/store";
-import type { FilterState, FilterOptions, Genre } from "$lib/types/filters";
+import type {
+  FilterState,
+  FilterOptions,
+  Genre,
+  SortBy,
+  SortOrder,
+  WatchStatus,
+} from "$lib/types/filters";
 import { defaultFilterState, createQueryString } from "$lib/types/filters";
 import { goto } from "$app/navigation";
 import { page } from "$app/stores";
 import type { Page } from "@sveltejs/kit";
+
+const sortByValues: SortBy[] = ["popularity", "rating", "release_date", "title"];
+const sortOrderValues: SortOrder[] = ["asc", "desc"];
+const watchStatusValues: WatchStatus[] = ["all", "watching", "completed", "planned"];
+
+function isSortBy(value: string): value is SortBy {
+  return sortByValues.includes(value as SortBy);
+}
+
+function isSortOrder(value: string): value is SortOrder {
+  return sortOrderValues.includes(value as SortOrder);
+}
+
+function isWatchStatus(value: string): value is WatchStatus {
+  return watchStatusValues.includes(value as WatchStatus);
+}
 
 function createFilterStore() {
   const { subscribe, set, update } = writable<FilterState>(defaultFilterState);
@@ -44,14 +67,16 @@ function createFilterStore() {
 
 
         const sortBy = params.get("sortBy");
-        if (sortBy) newState.sortBy = sortBy as any;
+        if (sortBy && isSortBy(sortBy)) newState.sortBy = sortBy;
 
         const sortOrder = params.get("sortOrder");
-        if (sortOrder) newState.sortOrder = sortOrder as any;
+        if (sortOrder && isSortOrder(sortOrder)) newState.sortOrder = sortOrder;
 
 
         const watchStatus = params.get("watchStatus");
-        if (watchStatus) newState.watchStatus = watchStatus as any;
+        if (watchStatus && isWatchStatus(watchStatus)) {
+          newState.watchStatus = watchStatus;
+        }
 
 
         const page = params.get("page");

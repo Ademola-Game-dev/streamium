@@ -1,4 +1,5 @@
 import type { UserSession } from "$lib/types/auth";
+import { csrfFetch } from "$lib/utils/csrf";
 
 class AuthService {
   private static instance: AuthService;
@@ -13,7 +14,7 @@ class AuthService {
   }
 
   async login(usernameOrEmail: string, password: string): Promise<UserSession> {
-    const response = await fetch('/api/auth/login', {
+    const response = await csrfFetch('/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -29,13 +30,19 @@ class AuthService {
     return response.json();
   }
 
-  async register(username: string, email: string | null, password: string): Promise<UserSession> {
-    const response = await fetch('/api/auth/register', {
+  async register(
+    username: string,
+    email: string | null,
+    password: string,
+    captchaId: string,
+    captchaAnswer: string,
+  ): Promise<UserSession> {
+    const response = await csrfFetch('/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ username, email, password }),
+      body: JSON.stringify({ username, email, password, captchaId, captchaAnswer }),
     });
 
     if (!response.ok) {
@@ -47,7 +54,7 @@ class AuthService {
   }
 
   async logout(): Promise<void> {
-    const response = await fetch('/api/auth/logout', {
+    const response = await csrfFetch('/api/auth/logout', {
       method: 'POST',
     });
 
@@ -72,7 +79,7 @@ class AuthService {
   }
 
   async requestPasswordReset(identifier: string): Promise<void> {
-    const response = await fetch('/api/auth/reset-password/request', {
+    const response = await csrfFetch('/api/auth/reset-password/request', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -87,7 +94,7 @@ class AuthService {
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    const response = await fetch('/api/auth/reset-password/reset', {
+    const response = await csrfFetch('/api/auth/reset-password/reset', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

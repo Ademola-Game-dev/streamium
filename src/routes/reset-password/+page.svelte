@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { csrfFetch } from '$lib/utils/csrf';
 
   let identifier = '';
   let error = '';
@@ -13,7 +13,7 @@
     success = '';
 
     try {
-      const response = await fetch('/api/auth/reset-password/request', {
+      const response = await csrfFetch('/api/auth/reset-password/request', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

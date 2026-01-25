@@ -1,11 +1,15 @@
 import type { Handle } from "@sveltejs/kit";
-import { getSession } from "$lib/server/auth";
+import { getSession, createCsrfToken } from "$lib/server/auth";
 import { prisma } from "$lib/server/prisma";
 import { isDatabaseConnectionError } from "$lib/server/services/db-error";
+import { dev } from "$app/environment";
+import crypto from "node:crypto";
+import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from "$lib/constants/security";
 
 const ADMIN_RATE_LIMIT = 100;
 const ADMIN_RATE_WINDOW = 5 * 60 * 1000;
 const adminRateLimits = new Map<string, { count: number; firstAttempt: number }>();
+const CSRF_MAX_AGE = 60 * 60 * 24 * 7;
 
 function checkAdminRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -39,15 +43,21 @@ setInterval(() => {
   }
 }, ADMIN_RATE_WINDOW);
 
-function setSecurityHeaders(response: Response): void {
+function setSecurityHeaders(response: Response, nonce: string): void {
+  const isDev = dev;
+
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set(
     'Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline'; " +
-    "style-src 'self' 'unsafe-inline'; " +
+    (isDev
+      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+      : `script-src 'self' 'nonce-${nonce}'; `) +
+    (isDev
+      ? "style-src 'self' 'unsafe-inline'; "
+      : `style-src 'self' 'nonce-${nonce}'; `) +
     "img-src 'self' data: https:; " +
     "font-src 'self' data:; " +
     "frame-src 'self' " +
@@ -61,7 +71,27 @@ function setSecurityHeaders(response: Response): void {
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
+  const nonce = crypto.randomBytes(16).toString("base64");
   const isAdminRoute = event.url.pathname.startsWith('/admin');
+  const method = event.request.method.toUpperCase();
+  const hasSessionCookie = Boolean(event.cookies.get("session"));
+
+  if (!["GET", "HEAD", "OPTIONS"].includes(method) && hasSessionCookie) {
+    const origin = event.request.headers.get("origin");
+    if (origin && origin !== event.url.origin) {
+      const response = new Response("Cross-origin requests not allowed", { status: 403 });
+      setSecurityHeaders(response, nonce);
+      return response;
+    }
+
+    const csrfHeader = event.request.headers.get(CSRF_HEADER_NAME);
+    const csrfCookie = event.cookies.get(CSRF_COOKIE_NAME);
+    if (!csrfHeader || !csrfCookie || csrfHeader !== csrfCookie) {
+      const response = new Response("Invalid CSRF token", { status: 403 });
+      setSecurityHeaders(response, nonce);
+      return response;
+    }
+  }
 
   // Authenticate user BEFORE resolving the request
   try {
@@ -91,29 +121,39 @@ export const handle: Handle = async ({ event, resolve }) => {
         if (isAdminRoute) {
           if (!user.isAdmin) {
             const response = new Response('Unauthorized', { status: 403 });
-            setSecurityHeaders(response);
+            setSecurityHeaders(response, nonce);
             return response;
           }
 
           const clientIp = event.getClientAddress();
           if (!checkAdminRateLimit(clientIp)) {
             const response = new Response('Too Many Requests', { status: 429 });
-            setSecurityHeaders(response);
+            setSecurityHeaders(response, nonce);
             return response;
           }
+        }
+        if (!event.cookies.get(CSRF_COOKIE_NAME)) {
+          const csrfToken = createCsrfToken();
+          event.cookies.set(CSRF_COOKIE_NAME, csrfToken, {
+            path: "/",
+            sameSite: "strict",
+            secure: !dev,
+            httpOnly: false,
+            maxAge: CSRF_MAX_AGE,
+          });
         }
       } else {
         event.cookies.delete("session", { path: "/" });
 
         if (isAdminRoute) {
           const response = new Response('Unauthorized', { status: 403 });
-          setSecurityHeaders(response);
+          setSecurityHeaders(response, nonce);
           return response;
         }
       }
     } else if (isAdminRoute) {
       const response = new Response('Unauthorized', { status: 403 });
-      setSecurityHeaders(response);
+      setSecurityHeaders(response, nonce);
       return response;
     }
   } catch (error) {
@@ -124,7 +164,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       // For admin routes, return 503; for others, continue without auth
       if (isAdminRoute) {
         const response = new Response('Service temporarily unavailable', { status: 503 });
-        setSecurityHeaders(response);
+        setSecurityHeaders(response, nonce);
         return response;
       }
       // Continue without user context for non-admin routes
@@ -134,15 +174,20 @@ export const handle: Handle = async ({ event, resolve }) => {
 
       if (isAdminRoute) {
         const response = new Response('Unauthorized', { status: 403 });
-        setSecurityHeaders(response);
+        setSecurityHeaders(response, nonce);
         return response;
       }
     }
   }
 
   // Only resolve AFTER auth checks pass
-  const response = await resolve(event);
-  setSecurityHeaders(response);
+  const response = await resolve(event, {
+    transformPageChunk: ({ html }) =>
+      html
+        .replace(/<script(?![^>]*nonce=)/g, `<script nonce=\"${nonce}\"`)
+        .replace(/<style(?![^>]*nonce=)/g, `<style nonce=\"${nonce}\"`),
+  });
+  setSecurityHeaders(response, nonce);
 
   return response;
 };

@@ -1,5 +1,6 @@
 import type { RequestEvent } from "@sveltejs/kit";
 import { error } from "@sveltejs/kit";
+import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from "$lib/constants/security";
 
 export async function requireAdmin(event: RequestEvent) {
   const user = event.locals.user;
@@ -20,10 +21,10 @@ export async function requireAdmin(event: RequestEvent) {
 
 
   if (event.request.method !== 'GET') {
-    const csrfToken = event.request.headers.get('x-csrf-token');
-    const sessionToken = event.cookies.get('session');
+    const csrfToken = event.request.headers.get(CSRF_HEADER_NAME);
+    const csrfCookie = event.cookies.get(CSRF_COOKIE_NAME);
 
-    if (!csrfToken || !sessionToken || csrfToken !== sessionToken) {
+    if (!csrfToken || !csrfCookie || csrfToken !== csrfCookie) {
       throw error(403, "Invalid CSRF token");
     }
   }

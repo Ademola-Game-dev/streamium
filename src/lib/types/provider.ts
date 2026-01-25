@@ -31,7 +31,7 @@ export interface StreamingQuality {
   url: string;
   metadata?: {
     baseUrl?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 

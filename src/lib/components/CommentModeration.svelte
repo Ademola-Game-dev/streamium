@@ -2,6 +2,7 @@
   import { page } from '$app/stores';
   import { commentsStore } from '$lib/stores/comments';
   import type { Comment } from '@prisma/client';
+  import { csrfFetch } from '$lib/utils/csrf';
 
   export let comment: Comment;
 
@@ -9,7 +10,7 @@
 
   async function deleteComment() {
     try {
-      const response = await fetch(`/api/comments/${comment.id}`, {
+      const response = await csrfFetch(`/api/comments/${comment.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
@@ -28,7 +29,7 @@
 
   async function flagComment() {
     try {
-      const response = await fetch(`/api/comments/${comment.id}/flag`, {
+      const response = await csrfFetch(`/api/comments/${comment.id}/flag`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -47,7 +48,7 @@
 
   async function unflagComment() {
     try {
-      const response = await fetch(`/api/comments/${comment.id}/unflag`, {
+      const response = await csrfFetch(`/api/comments/${comment.id}/unflag`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

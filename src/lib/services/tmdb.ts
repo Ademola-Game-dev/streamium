@@ -3,6 +3,8 @@ import type { TMDBMovie, TMDBTVShow, TMDBResponse, TMDBGenre, TMDBMediaResponse 
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const MAX_RETRIES = 2;
+type QueryParams = Record<string, string | number | boolean | null | undefined>;
+type HasVoteAverage = { vote_average?: number | null };
 
 export class TMDBApiError extends Error {
   constructor(
@@ -28,7 +30,7 @@ export class TMDBService {
     return !!this.apiKey && this.apiKey.length > 0;
   }
 
-  private async fetch<T>(endpoint: string, params: Record<string, any> = {}, retryCount = 0): Promise<T> {
+  private async fetch<T>(endpoint: string, params: QueryParams = {}, retryCount = 0): Promise<T> {
     if (!this.isConfigured()) {
       throw new TMDBApiError(
         'TMDB API key is not configured. Please add TMDB_API_KEY to your .env file.',
@@ -80,10 +82,13 @@ export class TMDBService {
         );
       }
 
-      const data = await response.json();
+      const data = await response.json() as T;
+      const results = (data as { results?: HasVoteAverage[] }).results;
 
-      if (data.results) {
-        data.results = data.results.filter((item: any) => item.vote_average > 0);
+      if (Array.isArray(results)) {
+        (data as { results: HasVoteAverage[] }).results = results.filter(
+          (item) => (item.vote_average ?? 0) > 0,
+        );
       }
 
       return data;
@@ -147,7 +152,7 @@ export class TMDBService {
     });
   }
 
-  async discoverMovies(params: Record<string, any> = {}): Promise<TMDBResponse<TMDBMovie>> {
+  async discoverMovies(params: QueryParams = {}): Promise<TMDBResponse<TMDBMovie>> {
     return this.fetch<TMDBResponse<TMDBMovie>>('/discover/movie', {
       include_adult: false,
       language: 'en-US',
@@ -155,7 +160,7 @@ export class TMDBService {
     });
   }
 
-  async discoverTVShows(params: Record<string, any> = {}): Promise<TMDBResponse<TMDBTVShow>> {
+  async discoverTVShows(params: QueryParams = {}): Promise<TMDBResponse<TMDBTVShow>> {
     return this.fetch<TMDBResponse<TMDBTVShow>>('/discover/tv', {
       include_adult: false,
       language: 'en-US',

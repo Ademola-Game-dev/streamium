@@ -1,15 +1,17 @@
 import { json } from "@sveltejs/kit";
 import type { RequestEvent } from "@sveltejs/kit";
-import { clearSessionCookie } from "$lib/server/auth";
+import { clearSessionCookie, clearCsrfCookie } from "$lib/server/auth";
 
 export async function POST(_event: RequestEvent) {
   try {
+    const headers = new Headers();
+    headers.append("Set-Cookie", clearSessionCookie());
+    headers.append("Set-Cookie", clearCsrfCookie());
+
     return json(
       { success: true },
       {
-        headers: {
-          "Set-Cookie": clearSessionCookie(),
-        },
+        headers,
       },
     );
   } catch (error) {

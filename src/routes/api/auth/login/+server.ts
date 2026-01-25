@@ -1,7 +1,7 @@
 import { json } from "@sveltejs/kit";
 import type { RequestEvent } from "@sveltejs/kit";
 import { authService } from "$lib/server/services/auth";
-import { createSessionCookie } from "$lib/server/auth";
+import { createSessionCookie, createCsrfCookie, createCsrfToken } from "$lib/server/auth";
 import { RateLimitService } from "$lib/server/services/rate-limit";
 import { handleDatabaseError } from "$lib/server/services/db-error";
 import { dev } from "$app/environment";
@@ -18,24 +18,27 @@ export async function POST({ request, getClientAddress }: RequestEvent) {
   }
 
   try {
-    const { usernameOrEmail, password } = await request.json();
+    const { usernameOrEmail, identifier, password } = await request.json();
+    const loginIdentifier = usernameOrEmail ?? identifier;
 
-    if (!usernameOrEmail || !password) {
+    if (!loginIdentifier || !password) {
       return json({ error: "Username/Email and password are required" }, { status: 400 });
     }
 
-    const user = await authService.validateUser(usernameOrEmail, password);
+    const user = await authService.validateUser(loginIdentifier, password);
     if (!user) {
       return json({ error: "Invalid credentials" }, { status: 401 });
     }
 
     const token = await authService.generateToken(user);
     const isProduction = !dev;
+    const csrfToken = createCsrfToken();
+    const headers = new Headers();
+    headers.append("Set-Cookie", createSessionCookie(token, isProduction));
+    headers.append("Set-Cookie", createCsrfCookie(csrfToken, isProduction));
 
     return json(user, {
-      headers: {
-        "Set-Cookie": createSessionCookie(token, isProduction),
-      },
+      headers,
     });
   } catch (error) {
     return handleDatabaseError(error, "login");

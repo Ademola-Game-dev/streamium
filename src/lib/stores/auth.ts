@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import { csrfFetch } from "$lib/utils/csrf";
 
 interface User {
   id: number;
@@ -56,10 +57,10 @@ function createAuthStore() {
 
     async login(identifier: string, password: string) {
       try {
-        const response = await fetch("/api/auth/login", {
+        const response = await csrfFetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ identifier, password }),
+          body: JSON.stringify({ usernameOrEmail: identifier, password }),
         });
 
         if (!response.ok) {
@@ -85,12 +86,18 @@ function createAuthStore() {
       }
     },
 
-    async register(username: string, email: string | null, password: string) {
+    async register(
+      username: string,
+      email: string | null,
+      password: string,
+      captchaId: string,
+      captchaAnswer: string,
+    ) {
       try {
-        const response = await fetch("/api/auth/register", {
+        const response = await csrfFetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, email, password }),
+          body: JSON.stringify({ username, email, password, captchaId, captchaAnswer }),
         });
 
         if (!response.ok) {
@@ -118,7 +125,7 @@ function createAuthStore() {
 
     async logout() {
       try {
-        await fetch("/api/auth/logout", { method: "POST" });
+        await csrfFetch("/api/auth/logout", { method: "POST" });
       } finally {
         set({
           isAuthenticated: false,

@@ -10,6 +10,8 @@
   let loading = false;
   let error = '';
   let captchaVerified = false;
+  let captchaId = '';
+  let captchaAnswer = '';
 
   function validatePassword(pass: string): string | null {
     if (pass.length < 8) {
@@ -36,8 +38,12 @@
     captchaVerified = event.detail.valid;
     if (!captchaVerified) {
       error = 'Invalid captcha, please try again';
+      captchaId = '';
+      captchaAnswer = '';
     } else {
       error = '';
+      captchaId = event.detail.captchaId;
+      captchaAnswer = event.detail.answer;
     }
   }
 
@@ -84,7 +90,13 @@
     loading = true;
 
     try {
-      const success = await authStore.register(username, email || null, password);
+      const success = await authStore.register(
+        username,
+        email || null,
+        password,
+        captchaId,
+        captchaAnswer,
+      );
       if (success) {
         goto('/');
       } else {

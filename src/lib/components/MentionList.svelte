@@ -2,7 +2,7 @@
   import { createEventDispatcher } from 'svelte';
 
   export let items: { id: number; username: string }[] = [];
-  export let command: any;
+  export let command: (props: { id: number; label: string }) => void;
 
   let selectedIndex = 0;
   const dispatch = createEventDispatcher();

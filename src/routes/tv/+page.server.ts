@@ -55,7 +55,7 @@ async function fetchFilteredShows(filters: FilterOptions) {
   }
 
 
-  const params: Record<string, any> = {
+  const params: Record<string, string | number | boolean> = {
     page,
     sort_by: `${sortBy}.${sortOrder}`,
     "vote_count.gte": 100,

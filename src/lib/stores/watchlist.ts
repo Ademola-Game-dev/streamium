@@ -1,6 +1,7 @@
 import { writable } from "svelte/store";
 import { authStore } from "./auth";
 import { get } from "svelte/store";
+import { csrfFetch } from "$lib/utils/csrf";
 
 interface WatchlistItem {
   id: number;
@@ -74,7 +75,7 @@ function createWatchlistStore() {
       }
 
       try {
-        const response = await fetch("/api/watchlist", {
+        const response = await csrfFetch("/api/watchlist", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -105,7 +106,7 @@ function createWatchlistStore() {
       }
 
       try {
-        const response = await fetch("/api/watchlist", {
+        const response = await csrfFetch("/api/watchlist", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mediaId, mediaType }),

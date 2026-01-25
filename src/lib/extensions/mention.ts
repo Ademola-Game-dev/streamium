@@ -1,9 +1,18 @@
 import { Extension, type Editor, type Range } from "@tiptap/core";
 import Suggestion, { type SuggestionOptions } from "@tiptap/suggestion";
 
+type HTMLAttrs = Record<string, string | number | boolean | null | undefined>;
+
+interface MentionNode {
+  attrs: {
+    id?: string | null;
+    label?: string | null;
+  };
+}
+
 export interface MentionOptions {
-  HTMLAttributes?: Record<string, any>;
-  renderLabel?: (props: { options: MentionOptions; node: any }) => string;
+  HTMLAttributes?: HTMLAttrs;
+  renderLabel?: (props: { options: MentionOptions; node: MentionNode }) => string;
   suggestion?: Partial<SuggestionOptions>;
 }
 
@@ -105,8 +114,8 @@ export const Mention = Extension.create<MentionOptions>({
     node,
     HTMLAttributes,
   }: {
-    node: any;
-    HTMLAttributes: Record<string, any>;
+    node: MentionNode;
+    HTMLAttributes: HTMLAttrs;
   }) {
     return [
       "span",
