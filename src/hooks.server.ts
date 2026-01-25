@@ -51,13 +51,13 @@ function setSecurityHeaders(response: Response): void {
     "font-src 'self' data:; " +
     "frame-src 'self' " +
     "https://vidsrc.cc/ https://*.vidsrc.cc/ " +
-    "https://moviesapi.club/ https://*.moviesapi.club/ " +
-    "https://vidsrc-embed.ru/ https://*.vidsrc-embed.ru/ " +
-    "https://godriveplayer.com/ https://*.godriveplayer.com/ " +
     "https://vidplay.site/ https://*.vidplay.site/ " +
     "https://vidplay.online/ https://*.vidplay.online/ " +
-    "https://filemoon.sx/ https://*.filemoon.sx/ " +
-    "https://hydrax.net/ https://*.hydrax.net/;"
+    "https://vidlink.pro/ https://*.vidlink.pro/ " +
+    "https://111movies.com/ https://*.111movies.com/ " +
+    "https://2embed.cc/ https://*.2embed.cc/ " +
+    "https://moviesapi.club/ https://*.moviesapi.club/ " +
+    "https://multiembed.mov/ https://*.multiembed.mov/;"
   );
 }
 
